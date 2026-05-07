@@ -13,7 +13,8 @@ make -j $(nproc)
 sudo make install
 
 
-
+# Build kernel with opensbi:
+make ARCH=riscv CROSS_COMPILE=riscv64-unknown-linux-gnu- PLATFORM=generic FW_PAYLOAD_PATH=/home/farid/linux-5.4.284/arch/riscv/boot/Image
 
 # Create disk image for vSwarm-u
 
@@ -78,3 +79,9 @@ echo 'export PATH=\$PATH:/usr/local/go/bin' >> $ROOTFS/etc/profile
 #ln -s /usr/sbin/ip6tables-legacy /usr/sbin/ip6tables
 systemctl daemon-reload
 systemctl enable gem5.service
+
+
+
+
+# Changes required the reserve 2GB in kernel address space in system bootup:
+# reserve_kernel_mem.patch

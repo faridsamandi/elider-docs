@@ -1,0 +1,38 @@
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index d49e334..17adf69 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -55,6 +55,17 @@ void __init mem_init(void)
+ 	memblock_free_all();
+ 
+ 	mem_init_print_info(NULL);
++
++
++    unsigned long phys_addr = 0x100000000ULL;
++    unsigned long reserved_size = (2UL * 1024 * 1024 * 1024);
++    void *virt_addr = phys_to_virt(phys_addr);
++    unsigned long i;
++    for (i = 0; i < reserved_size; i += PAGE_SIZE) {
++        SetPageReserved(virt_to_page(virt_addr + i));
++    }
++    pr_info("---------- Reserved memory mapping: physical=0x%lx, virtual=0x%lx ----------\n",
++            phys_addr, (unsigned long)virt_addr);
+ }
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+@@ -119,6 +130,15 @@ void __init setup_bootmem(void)
+ 	max_low_pfn = max_pfn;
+ 	set_max_mapnr(max_low_pfn);
+ 
++pr_info("vmlinux start: 0x%llx, end: 0x%llx\n",
++        (unsigned long long)vmlinux_start,
++        (unsigned long long)vmlinux_end);
++unsigned long start_pfn = 0x100000000ULL >> PAGE_SHIFT;
++unsigned long size_pages = (2UL * 1024 * 1024 * 1024) >> PAGE_SHIFT; /* 4GB in pages */
++memblock_reserve(PFN_PHYS(start_pfn), size_pages << PAGE_SHIFT);
++pr_info("---------- Reserved memory region: physical address 0x%lx - 0x%lx ----------\n",
++            PFN_PHYS(start_pfn), PFN_PHYS(start_pfn + size_pages) - 1);
++
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	setup_initrd();
+ #endif /* CONFIG_BLK_DEV_INITRD */
